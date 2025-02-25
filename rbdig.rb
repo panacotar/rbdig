@@ -1,3 +1,5 @@
+#!/usr/bin/env ruby
+
 require 'socket'
 require_relative './lib/reader'
 require_relative './lib/message'
@@ -17,7 +19,6 @@ def connect(message, server = ROOT_DNS_SERVER, port = DNS_PORT)
   response
 end
 
-# LOOKUP
 def lookup(domain)
   nameserver = ROOT_DNS_SERVER
 
