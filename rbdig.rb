@@ -137,3 +137,17 @@ class DNSResponse
   end
 end
 
+def connect(message, server = INITIAL_DNS_SERVER, port = DNS_PORT)
+  socket = UDPSocket.new
+  socket.send(message, 0, server, port)
+  response, _ = socket.recvfrom(512)
+
+  socket.close
+  response
+end
+
+msg = DNSQuery.new("\xBE\xEF").query_message(DOMAIN)
+socket_response = connect(msg)
+dns_response = DNSResponse.new(socket_response).parse
+
+p dns_response
