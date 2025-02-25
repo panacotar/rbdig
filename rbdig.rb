@@ -1,4 +1,5 @@
 require 'socket'
+require_relative './reader'
 
 DOMAIN = "example.com"
 INITIAL_DNS_SERVER = '8.8.8.8'
@@ -55,3 +56,84 @@ class DNSQuery
     enc + "\x00"
   end
 end
+
+class DNSResponse
+  attr_reader :header, :body, :answers, :authorities, :additional
+  def initialize(dns_reply)
+    @buffer = Reader.new(dns_reply)
+    @header = {}
+    @body = {}
+    @answers = []
+    @authorities = []
+    @additional = []
+  end
+
+  def parse
+    @header = parse_header
+    @body = parse_body
+    @answers = parse_resource_records(@header[:an_count])
+    @authorities = parse_resource_records(@header[:ns_count])
+    @additional = parse_resource_records(@header[:ar_count])
+    self
+  end
+
+  private
+
+  def parse_header
+    query_id, flags, qd_count, an_count, ns_count, ar_count = @buffer.read(12).unpack('n6')
+    { query_id:, flags:, qd_count:, an_count:, ns_count:, ar_count: }
+  end
+
+  def parse_body
+    question = extract_dns_name(@buffer)
+    q_type = @buffer.read(2).unpack('n').first
+    q_class = @buffer.read(2).unpack('n').first
+    { question:, q_type:, q_class: }
+  end
+
+  def parse_resource_records(num_records)
+    num_records.times.collect do
+      rr_name = extract_dns_name(@buffer)
+      rr_type, rr_class = @buffer.read(4).unpack('n2')
+      ttl = @buffer.read(4).unpack('N').first
+      rr_data_length = @buffer.read(2).unpack('n').first
+      rr_data = extract_record_data(@buffer, rr_type, rr_data_length)
+      next unless [1, 2, 5].include?(rr_type)
+      { rr_name:, rr_type:, rr_class:, ttl:, rr_data_length:, rr_data: }
+    end.compact
+  end
+
+  # \x03dns\x06google\x03com\x00 > dns.google.com
+  # Handle also the DNS message compression cases (the read_length byte is 192 or 11000000)
+  def extract_dns_name(buffer)
+    domain_parts = []
+    loop do
+      # Add a check for max loops
+      read_length = buffer.read(1).bytes.first
+      break if read_length == 0
+      if read_length == 0b11000000
+        # Byte is pointer (DNS compression)
+        pointing_to = buffer.read(1).bytes.first
+        current_pos = buffer.pos
+        buffer.pos = pointing_to
+        domain_parts << extract_dns_name(buffer)
+        buffer.pos = current_pos
+        break
+      else
+        domain_parts << buffer.read(read_length)
+      end
+    end
+    domain_parts.join(".")
+  end
+
+  def extract_record_data(buffer, type, length)
+    if type == 1 # A
+      buffer.read(length).unpack('C*').join(".")
+    elsif type == 2 || type == 5 # NS || CNAME
+      extract_dns_name(buffer)
+    else
+      buffer.read(length)
+    end
+  end
+end
+
