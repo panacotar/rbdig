@@ -1,3 +1,4 @@
+# Basic StringIO implementation
 class Reader
   attr_reader :buffer
   attr_accessor :pos
