@@ -1,8 +1,8 @@
 require 'socket'
 require_relative './reader'
 
-DOMAIN = "example.com"
 INITIAL_DNS_SERVER = '8.8.8.8'
+DOMAIN = ARGV[0]
 DNS_PORT = 53
 
 class DNSQuery
