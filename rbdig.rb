@@ -1,7 +1,6 @@
 require 'socket'
 require_relative './reader'
 
-INITIAL_DNS_SERVER = '8.8.8.8'
 DOMAIN = ARGV[0]
 # INITIAL_DNS_SERVER = '8.8.8.8'
 ROOT_DNS_SERVER = '199.7.83.42' # l.root-servers.net
@@ -140,7 +139,7 @@ class DNSResponse
   end
 end
 
-def connect(message, server = INITIAL_DNS_SERVER, port = DNS_PORT)
+def connect(message, server = ROOT_DNS_SERVER, port = DNS_PORT)
   socket = UDPSocket.new
   socket.send(message, 0, server, port)
   response, _ = socket.recvfrom(512)
