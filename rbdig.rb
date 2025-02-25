@@ -42,12 +42,12 @@ class DNSQuery
     # opcode = 0b0000   # 4-bit, the kind of query, 0 - a standard query
     # aa = 0b0          # Authoritative Answer
     # tc = 0b0          # TrunCation
-    # rd = 0b1          # Recursive Desired
+    # rd = 0b0          # Recursive Desired
     # ra = 0b0          # Recursive Available
     # z = 0b000         # Reserved (must be 0)
     # rcode = 0b0000    # 4-bit part of response (for error checking)
 
-    "\x01\x00" # Standard flag
+    "\x00\x00"
   end
 
   # google.com > 6google3com0 > \x06google\x03com\x00
