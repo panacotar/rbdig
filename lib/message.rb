@@ -1,6 +1,6 @@
 require_relative './reader'
 class DNSQuery
-  def initialize(query_id, q_type = "\x00\x01")
+  def initialize(query_id, q_type: "\x00\x01")
     @query_id = query_id
     @q_type = q_type # The type of query (ex: A, NS, CNAME)
   end
@@ -79,7 +79,7 @@ class DNSResponse
   end
 
   def parse_body
-    question = extract_dns_name(@buffer)
+    question = extract_domain_name(@buffer)
     q_type = @buffer.read(2).unpack('n').first
     q_class = @buffer.read(2).unpack('n').first
     { question:, q_type:, q_class: }
@@ -87,7 +87,7 @@ class DNSResponse
 
   def parse_resource_records(num_records)
     num_records.times.collect do
-      rr_name = extract_dns_name(@buffer)
+      rr_name = extract_domain_name(@buffer)
       rr_type, rr_class = @buffer.read(4).unpack('n2')
       ttl = @buffer.read(4).unpack('N').first
       rr_data_length = @buffer.read(2).unpack('n').first
@@ -99,8 +99,8 @@ class DNSResponse
 
   # \x03www\x07example\03com\x00 > www.example.com
   # Handle also the DNS message compression cases (the read_length byte is 192 or 11000000)
-  def extract_dns_name(buffer)
-    domain_parts = []
+  def extract_domain_name(buffer)
+    domain_labels = []
     loop do
       # Add a check for max loops
       read_length = buffer.read(1).bytes.first
@@ -110,21 +110,21 @@ class DNSResponse
         pointing_to = buffer.read(1).bytes.first
         current_pos = buffer.pos
         buffer.pos = pointing_to
-        domain_parts << extract_dns_name(buffer)
+        domain_labels << extract_domain_name(buffer)
         buffer.pos = current_pos
         break
       else
-        domain_parts << buffer.read(read_length)
+        domain_labels << buffer.read(read_length)
       end
     end
-    domain_parts.join(".")
+    domain_labels.join(".")
   end
 
   def extract_record_data(buffer, type, length)
     if type == 1 # A
       buffer.read(length).unpack('C*').join(".")
     elsif type == 2 || type == 5 # NS || CNAME
-      extract_dns_name(buffer)
+      extract_domain_name(buffer)
     else
       buffer.read(length)
     end
