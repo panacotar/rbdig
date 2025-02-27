@@ -1,3 +1,4 @@
+require_relative './reader'
 class DNSQuery
   def initialize(query_id, q_type = "\x00\x01")
     @query_id = query_id

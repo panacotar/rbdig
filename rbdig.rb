@@ -1,7 +1,6 @@
 #!/usr/bin/env ruby
 
 require 'socket'
-require_relative './lib/reader'
 require_relative './lib/message'
 
 DOMAIN = ARGV[0]
