@@ -109,8 +109,13 @@ class DNSResponse
         # Byte is pointer (DNS compression)
         pointing_to = read_length - 0b11000000
         pointing_to += buffer.read(1).bytes.first # Second byte
+        raise "Invalid compression label" if pointing_to < 12 || pointing_to >= 512
+        raise "Non-backward compression pointer" if pointing_to >= buffer.pos - 1
+
         current_pos = buffer.pos
         buffer.pos = pointing_to
+        raise "Invalid compression label, offset to a pointer" if buffer.rest[0] == "\xc0".b
+
         domain_labels << extract_domain_name(buffer)
         buffer.pos = current_pos
         break
