@@ -105,9 +105,10 @@ class DNSResponse
       # Add a check for max loops
       read_length = buffer.read(1).bytes.first
       break if read_length == 0
-      if read_length == 0b11000000
+      if read_length >= 0b11000000
         # Byte is pointer (DNS compression)
-        pointing_to = buffer.read(1).bytes.first
+        pointing_to = read_length - 0b11000000
+        pointing_to += buffer.read(1).bytes.first # Second byte
         current_pos = buffer.pos
         buffer.pos = pointing_to
         domain_labels << extract_domain_name(buffer)
