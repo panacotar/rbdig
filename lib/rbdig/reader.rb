@@ -1,14 +1,15 @@
 # Basic StringIO implementation
-class Reader
+class RbDig::Reader
   attr_reader :buffer
   attr_accessor :pos
+
   def initialize(buffer)
     @buffer = buffer
     @pos = 0
   end
 
   def read(num_bytes = false)
-    return "" if !num_bytes || num_bytes <= 0
+    return '' if !num_bytes || num_bytes <= 0
 
     old_pos = @pos
     @pos += num_bytes
