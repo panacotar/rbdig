@@ -1,5 +1,5 @@
 class RbDig::Query
-  def initialize(query_id, q_type: "\x00\x01")
+  def initialize(query_id = "\x00\x01", q_type: "\x00\x01")
     @query_id = query_id
     @q_type = q_type # The type of query (ex: A, NS, CNAME)
   end
@@ -41,7 +41,6 @@ class RbDig::Query
     # rcode = 0b0000    # 4-bit part of response (for error checking)
 
     "\x00\x00"
-    # "\x01\x00"
   end
 
   # example.com > \x07example\x03com\x00

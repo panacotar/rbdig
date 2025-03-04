@@ -2,22 +2,12 @@ class RbDig::Response
   attr_reader :header, :body, :answers, :authorities, :additional
 
   def initialize(dns_reply)
-    # byebug
     @buffer = RbDig::Reader.new(dns_reply.b)
-    @header = {}
-    @body = {}
-    @answers = []
-    @authorities = []
-    @additional = []
-  end
-
-  def parse
     @header = parse_header
     @body = parse_body
     @answers = parse_resource_records(@header[:an_count])
     @authorities = parse_resource_records(@header[:ns_count])
     @additional = parse_resource_records(@header[:ar_count])
-    self
   end
 
   private
@@ -52,29 +42,33 @@ class RbDig::Response
   def extract_domain_name(buffer)
     domain_labels = []
     loop do
-      # Add a check for max loops
       read_length = buffer.read(1).bytes.first
-      break if read_length == 0
+      break if read_length.zero?
 
       if read_length >= 0b11000000
         # Byte is pointer (DNS compression)
-        pointing_to = read_length - 0b11000000
+        pointing_to = read_length - 192
         pointing_to += buffer.read(1).bytes.first # Second byte
-        raise 'Invalid compression label' if pointing_to < 12 || pointing_to >= 512
-        raise 'Non-backward compression pointer' if pointing_to >= buffer.pos - 1
+        validate_offset(pointing_to)
 
         current_pos = buffer.pos
         buffer.pos = pointing_to
-        raise 'Invalid compression label, offset to a pointer' if buffer.rest[0] == "\xc0".b
 
         domain_labels << extract_domain_name(buffer)
         buffer.pos = current_pos
         break
-      else
-        domain_labels << buffer.read(read_length)
       end
+
+      domain_labels << buffer.read(read_length)
     end
     domain_labels.join('.')
+  end
+
+  def validate_offset(offset)
+    raise RbDig::DNSMessageError, 'invalid compression label' if offset < 12 || offset >= 512
+
+    raise RbDig::DNSMessageError, 'non-backward compression pointer' if offset >= @buffer.pos - 1
+    raise RbDig::DNSMessageError, 'Invalid compression label, offset to a pointer' if @buffer.buffer[offset] == "\xc0".b
   end
 
   def extract_record_data(buffer, type, length)
