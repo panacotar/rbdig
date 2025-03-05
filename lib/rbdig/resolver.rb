@@ -1,15 +1,16 @@
 require 'socket'
 
-class RbDig::NS
+class RbDig::Resolver
   MAX_LOOKUPS = 15
   ROOT_DNS_SERVER = '199.7.83.42' # l.root-servers.net
   DNS_PORT = 53
 
-  def initialize(trace: true)
+  def initialize(dns_server: ROOT_DNS_SERVER, trace: true)
     @trace = trace
+    @dns_server = dns_server
   end
 
-  def lookup(domain)
+  def query(domain)
     nameserver = ROOT_DNS_SERVER
     query_id = "\x00\x01"
     msg = RbDig::Query.new(query_id).query_message(domain)
@@ -19,7 +20,7 @@ class RbDig::NS
     RbDig::Response.new(socket_response)
   end
 
-  def resolve(domain)
+  def lookup(domain)
     nameserver = ROOT_DNS_SERVER
 
     MAX_LOOKUPS.times do
@@ -40,7 +41,7 @@ class RbDig::NS
       next unless dns_response.authorities.any?
 
       ns_name = dns_response.authorities[0][:rr_data]
-      nameserver = resolve(ns_name)
+      nameserver = lookup(ns_name)
       next
     end
 

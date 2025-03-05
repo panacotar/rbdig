@@ -7,14 +7,16 @@ class RbDig::Display
     puts "HEADER: opcode: QUERY, id: #{@response.header[:query_id]}"
     # puts "flags: #{}"
     puts "ANSWER: #{@response.answers.size}, AUTHORITY: #{@response.authorities.size}, ADDITIONAL: #{@response.additional.size}"
-    puts "\n\n"
+    puts "\n"
 
     puts 'QUESTION SECTION:'
     puts "#{@response.body[:question]}\t\t#{q_type(@response.body[:q_type])}"
-    puts "\n"
+    puts "\n\n"
 
     print_answer
     print_authority
+    puts "\n"
+    print_additional
   end
 
   def print_answer
