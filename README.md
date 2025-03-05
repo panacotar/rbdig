@@ -1,15 +1,15 @@
 # rbdig
 
-A DNS lookup library for me to learn how DNS works. Inspired by `dig` CLI tool.
+A DNS lookup library for me to learn how DNS works. Inspired by `dig` CLI tool.   
 Can encode a domain name in the message and construct a valid DNS query.
-Also, it handles decoding of the DNS response raw packet. Currently, it supports only DNS queries for 'A' records.
+It also handles decoding of the DNS response raw packet. Currently, it supports only DNS queries for 'A' records.
 
 Can output similar to `dig` (*+noall*, *+short*, *+trace*).
 
 ## Usage
 Allow execution with `chmod +x dig.rb`.
 
-```
+```sh
 # Recursive lookup, default output
 ./dig.rb example.com
 
