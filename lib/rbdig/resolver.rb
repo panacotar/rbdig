@@ -1,14 +1,14 @@
 require 'socket'
 
 class RbDig::Resolver
-  MAX_LOOKUPS = 15
+  MAX_LOOKUPS = 10
 
   def initialize(opts)
     @opts = opts
     @trace = opts[:trace]
     @dns_server = opts[:dns_server]
     @port = opts[:port]
-    @type = opts[:q_type]
+    @q_type = opts[:q_type]
   end
 
   def query(domain)
@@ -62,7 +62,7 @@ class RbDig::Resolver
 
   def build_message(domain)
     query_id = [rand(65_535)].pack('n')
-    RbDig::Query.new(query_id).query_message(domain)
+    RbDig::Query.new(query_id, q_type: @q_type).query_message(domain)
   end
 
   def connect(message, server = @dns_server)

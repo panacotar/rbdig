@@ -4,9 +4,9 @@ module RbDig
   ROOT_DNS_SERVER = '199.7.83.42' # l.root-servers.net
 
   QUERY_TYPES = {
-    1 => 'A',
-    2 => 'NS',
-    5 => 'CNAME'
+    'A' => 1
+    # 'NS' => 2,
+    # 'CNAME' => 5
   }
 
   PRINT_OPTIONS = {
@@ -19,7 +19,7 @@ module RbDig
   DEFAULTS = {
     port: 53,
     dns_server: ROOT_DNS_SERVER,
-    q_type: 'A',
+    q_type: 1,
     q_class: 'IN',
     print: 3,
     trace: false,

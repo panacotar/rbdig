@@ -82,6 +82,6 @@ class RbDig::Display
   end
 
   def q_type(type)
-    RbDig::QUERY_TYPES[type]
+    RbDig::QUERY_TYPES.invert[type]
   end
 end

@@ -6,7 +6,7 @@ class RbDig::Options
   def self.parse(argv)
     options = {}.merge(RbDig::DEFAULTS)
     OptionParser.new do |opts|
-      opts.banner = "\nUsage: rbdig.rb [options] [DOMAIN] [#{RbDig::QUERY_TYPES.values.join('|')}]"
+      opts.banner = "\nUsage: rbdig.rb [options] [DOMAIN] [#{RbDig::QUERY_TYPES.keys.join('|')}]"
 
       opts.separator ''
       opts.separator 'Specific options:'
@@ -36,7 +36,7 @@ class RbDig::Options
     end.parse!(argv)
     domain, q_type = ARGV
     validate(domain, q_type)
-    options[:q_type] = q_type unless q_type.nil?
+    options[:q_type] = RbDig::QUERY_TYPES[q_type] unless q_type.nil?
     options
   end
 
@@ -46,7 +46,7 @@ class RbDig::Options
 
     return unless q_type
 
-    raise ArgumentError, 'Invalid/unsupported query type' unless RbDig::QUERY_TYPES.values.include?(q_type)
+    raise ArgumentError, "Invalid/unsupported query type: #{q_type}" if RbDig::QUERY_TYPES[q_type].nil?
   end
 
   def valid_domain?(domain); end

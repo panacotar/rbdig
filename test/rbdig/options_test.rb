@@ -42,7 +42,7 @@ class OptionTest < Minitest::Test
   end
 
   def test_accept_supported_types
-    ARGV.replace(['abc.com', 'NS'])
+    ARGV.replace(['abc.com', 'A'])
     assert_kind_of Hash, RbDig::Options.parse(ARGV)
   end
 
