@@ -11,7 +11,7 @@ class RbDig::Resolver
   end
 
   def query(domain)
-    nameserver = ROOT_DNS_SERVER
+    nameserver = @dns_server
     query_id = "\x00\x01"
     msg = RbDig::Query.new(query_id).query_message(domain)
     socket_response = connect(msg, nameserver)
@@ -21,7 +21,7 @@ class RbDig::Resolver
   end
 
   def lookup(domain)
-    nameserver = ROOT_DNS_SERVER
+    nameserver = @dns_server
 
     MAX_LOOKUPS.times do
       puts "Querying #{nameserver} for #{domain}" if @trace
