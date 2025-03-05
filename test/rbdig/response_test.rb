@@ -20,7 +20,6 @@ class ResponseTest < Minitest::Test
   end
 
   def test_infinite_loop_protection
-    # p res
     assert_raises(RbDig::DNSMessageError) do
       RbDig::Response.new(TestConstants::INFINITE_LOOKUP_DNS_REPLY)
     end
