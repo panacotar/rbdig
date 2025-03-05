@@ -59,6 +59,8 @@ class RbDig::Response
         break
       end
 
+      raise RbDig::DNSMessageError, 'Invalid label length byte' if read_length >= 63
+
       domain_labels << buffer.read(read_length)
     end
     domain_labels.join('.')
