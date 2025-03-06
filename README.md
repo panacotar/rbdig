@@ -6,6 +6,11 @@ It also handles decoding of the DNS response raw packet. Currently, it supports 
 
 Can output similar to `dig` (*+noall*, *+short*, *+trace*).
 
+I wrote a companion article with my findings, and the building progress of this project.   
+https://panacotar.github.io/blog/dns-lookup-from-scratch/
+
+Thanks to [Greg](https://greg.molnar.io/) for his advice on this project.
+
 ## Usage
 Allow execution with `chmod +x dig.rb`.
 
